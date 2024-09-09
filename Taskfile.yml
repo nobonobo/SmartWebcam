@@ -1,0 +1,22 @@
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+version: "3"
+
+interval: 500ms
+
+tasks:
+  wasm:
+    watch: true
+    sources:
+      - "**/*.go"
+    env:
+      GOOS: js
+      GOARCH: wasm
+    cmds:
+      - go build -o './docs/main.wasm' .
+  install:
+    cmds:
+      - go install github.com/mokiat/httpserv@v1.0.0
+  web:
+    deps: [install]
+    cmds:
+      - httpserv -dir './docs' -host '0.0.0.0'
