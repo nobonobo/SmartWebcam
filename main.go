@@ -22,7 +22,6 @@ var (
 	navigator    = js.Global().Get("navigator")
 	location     = js.Global().Get("location")
 	console      = js.Global().Get("console")
-	localStorage = js.Global().Get("localStorage")
 	mediaDevices = navigator.Get("mediaDevices")
 )
 
@@ -85,12 +84,11 @@ func show(view string) {
 		document.Get("body").Set("innerHTML", index)
 		generator := uuid7.New()
 		self, peer := generator.Next().String(), generator.Next().String()
-		u := url.URL{Scheme: "http"}
+		u, _ := url.Parse(location.Get("origin").String() + location.Get("pathname").String())
 		u.RawQuery = url.Values{
 			"self": {self},
 			"peer": {peer},
 		}.Encode()
-		u.Host = location.Get("host").String()
 		u.Fragment = "camera"
 		console.Call("log", "qr: ", u.String())
 		qr, err := code.New(u.String(), code.Low)
