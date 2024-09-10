@@ -107,9 +107,15 @@ func show(view string) {
 		img.Set("src", data)
 		document.Get("body").Call("appendChild", img)
 		go func() {
+			connected := false
+			done := make(chan error, 1)
+			defer func() {
+				location.Call("reload")
+			}()
 			sdp, err := operator.Pull(self)
 			if err != nil {
 				console.Call("log", "pull failed:", err)
+				done <- err
 				return
 			}
 			console.Call("log", sdp)
@@ -122,6 +128,19 @@ func show(view string) {
 					},
 				},
 			})
+			pc.Call("addEventListener", "connectionstatechange", js.FuncOf(func(this js.Value, args []js.Value) interface{} {
+				state := args[0].Get("connectionState")
+				console.Call("log", "pc:", state)
+				switch state.String() {
+				case "connected":
+					connected = true
+				case "disconnected":
+					if connected {
+						close(done)
+					}
+				}
+				return nil
+			}))
 			pc.Call("addEventListener", "icecandidate", js.FuncOf(func(this js.Value, args []js.Value) interface{} {
 				candidate := args[0].Get("candidate")
 				if candidate.IsNull() {
@@ -129,6 +148,7 @@ func show(view string) {
 						data := pc.Get("localDescription").Get("sdp").String()
 						if err := operator.Push(peer, data); err != nil {
 							log.Println("push failed:", err)
+							done <- err
 							return
 						}
 					}()
@@ -150,9 +170,11 @@ func show(view string) {
 			answer, err := await(pc.Call("createAnswer"))
 			if err != nil {
 				log.Println("createAnswer failed:", err)
+				done <- err
 				return
 			}
 			await(pc.Call("setLocalDescription", answer))
+			<-done
 		}()
 	case "camera":
 		document.Get("body").Set("innerHTML", camera)
