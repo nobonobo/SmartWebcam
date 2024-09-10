@@ -129,7 +129,7 @@ func show(view string) {
 				},
 			})
 			pc.Call("addEventListener", "connectionstatechange", js.FuncOf(func(this js.Value, args []js.Value) interface{} {
-				state := args[0].Get("connectionState")
+				state := pc.Get("connectionState")
 				console.Call("log", "pc:", state)
 				switch state.String() {
 				case "connected":
