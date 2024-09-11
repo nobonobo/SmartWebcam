@@ -85,7 +85,7 @@ func show(view string) {
 		params := js.Global().Get("URLSearchParams").New(location.Get("search"))
 		self := params.Call("get", "self").String()
 		peer := params.Call("get", "peer").String()
-		empty := self != "" || peer != ""
+		empty := self == "" || peer == ""
 		if empty {
 			generator := uuid7.New()
 			self, peer = generator.Next().String(), generator.Next().String()
