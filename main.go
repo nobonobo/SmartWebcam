@@ -82,13 +82,19 @@ func show(view string) {
 	switch view {
 	case "":
 		document.Get("body").Set("innerHTML", index)
-		generator := uuid7.New()
-		self, peer := generator.Next().String(), generator.Next().String()
+		params := js.Global().Get("URLSearchParams").New(location.Get("search"))
+		self := params.Call("get", "self").String()
+		peer := params.Call("get", "peer").String()
+		if self != "" || peer != "" {
+			generator := uuid7.New()
+			self, peer = generator.Next().String(), generator.Next().String()
+		}
 		u, _ := url.Parse(location.Get("origin").String() + location.Get("pathname").String())
 		u.RawQuery = url.Values{
 			"self": {self},
 			"peer": {peer},
 		}.Encode()
+		location.Set("search", u.Query().Encode())
 		u.Fragment = "camera"
 		console.Call("log", "qr: ", u.String())
 		qr, err := code.New(u.String(), code.Low)
