@@ -33,6 +33,9 @@ const (
 	camera = `
 	<button id="activate"><h1>Camera ON</h1></button>
 	`
+	failed = `
+	<button id="restart"><h1>Restart</h1></button>
+	`
 )
 
 func connect(stream js.Value, self, peer string) error {
@@ -69,9 +72,10 @@ func connect(stream js.Value, self, peer string) error {
 	console.Call("log", offer)
 	pc.Call("setLocalDescription", offer)
 	console.Call("log", "setLocalDescription:", offer)
-	res, err := operator.Pull(peer)
+	res, err := operator.Pull(peer, 3)
 	if err != nil {
 		console.Call("log", "pull failed:", err.Error())
+		return err
 	}
 	await(pc.Call("setRemoteDescription", M{"type": "answer", "sdp": res}))
 	return nil
@@ -80,12 +84,19 @@ func connect(stream js.Value, self, peer string) error {
 func show(view string) {
 	view = strings.TrimLeft(view, "#/")
 	switch view {
+	case "failed":
+		document.Get("body").Set("innerHTML", failed)
+		document.Call("getElementById", "restart").Call("addEventListener", "click", js.FuncOf(func(this js.Value, args []js.Value) interface{} {
+			location.Set("hash", "")
+			return nil
+		}))
 	case "":
 		document.Get("body").Set("innerHTML", index)
 		params := js.Global().Get("URLSearchParams").New(location.Get("search"))
-		self := params.Call("get", "self").String()
-		peer := params.Call("get", "peer").String()
-		empty := self == "" || peer == ""
+		selfObj := params.Call("get", "self")
+		peerObj := params.Call("get", "peer")
+		self, peer := selfObj.String(), peerObj.String()
+		empty := selfObj.IsNull() || peerObj.IsNull()
 		if empty {
 			generator := uuid7.New()
 			self, peer = generator.Next().String(), generator.Next().String()
@@ -119,13 +130,10 @@ func show(view string) {
 		go func() {
 			connected := false
 			done := make(chan error, 1)
-			defer func() {
-				location.Call("reload")
-			}()
-			sdp, err := operator.Pull(self)
+			sdp, err := operator.Pull(self, 3)
 			if err != nil {
-				console.Call("log", "pull failed:", err)
-				done <- err
+				console.Call("log", "pull failed:", err.Error())
+				location.Set("hash", "#failed")
 				return
 			}
 			console.Call("log", sdp)
@@ -149,6 +157,8 @@ func show(view string) {
 					if connected {
 						close(done)
 					}
+				case "failed":
+					done <- fmt.Errorf("connection failed")
 				}
 				return nil
 			}))
@@ -186,6 +196,7 @@ func show(view string) {
 			}
 			await(pc.Call("setLocalDescription", answer))
 			<-done
+			location.Call("reload")
 		}()
 	case "camera":
 		document.Get("body").Set("innerHTML", camera)

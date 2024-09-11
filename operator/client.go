@@ -13,11 +13,11 @@ import (
 
 var Endpoint = "https://rtctunnel-operator.fly.dev"
 
-func Pull(key string) (string, error) {
+func Pull(key string, try int) (string, error) {
 	uv := url.Values{
 		"address": {key},
 	}
-	for {
+	for range try {
 		req, _ := http.NewRequest("POST", Endpoint+"/sub", strings.NewReader(uv.Encode()))
 		req.Header.Set("js.fetch:mode", "cors")
 		req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
@@ -46,6 +46,8 @@ func Pull(key string) (string, error) {
 		}
 		return string(bs), nil
 	}
+	log.Print("[operator] try-out")
+	return "", errors.New("try-out")
 }
 
 func Push(key, data string) error {
