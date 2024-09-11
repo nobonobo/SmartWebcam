@@ -85,7 +85,8 @@ func show(view string) {
 		params := js.Global().Get("URLSearchParams").New(location.Get("search"))
 		self := params.Call("get", "self").String()
 		peer := params.Call("get", "peer").String()
-		if self != "" || peer != "" {
+		empty := self != "" || peer != ""
+		if empty {
 			generator := uuid7.New()
 			self, peer = generator.Next().String(), generator.Next().String()
 		}
@@ -94,7 +95,10 @@ func show(view string) {
 			"self": {self},
 			"peer": {peer},
 		}.Encode()
-		location.Set("search", u.Query().Encode())
+		if empty {
+			location.Set("search", u.Query().Encode())
+			return
+		}
 		u.Fragment = "camera"
 		console.Call("log", "qr: ", u.String())
 		qr, err := code.New(u.String(), code.Low)
