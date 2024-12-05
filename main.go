@@ -257,7 +257,12 @@ func show(view string) {
 			go func() {
 				stream, err := await(mediaDevices.Call("getUserMedia", M{
 					"audio": false,
-					"video": M{"facingMode": "environment", "zoom": true},
+					"video": M{
+						"width":      1280,
+						"height":     720,
+						"facingMode": "environment",
+						"zoom":       true,
+					},
 				}))
 				if err != nil {
 					console.Call("log", "getUserMedia failed:", err)
