@@ -12,6 +12,23 @@
       );
       go.run(result.instance);
     })();
+    // When the user clicks on <span> (x), close the modal
+
+    // When the user clicks anywhere outside of the modal, close it
+    window.onclick = function (event) {
+      const modal = document.getElementById("myModal");
+      if (modal.style.display == "none") {
+        modal.style.display = "block";
+      } else {
+        modal.style.display = "none";
+      }
+      const [span] = document.getElementsByClassName("close");
+      span.onclick = function (ev) {
+        ev.stopPropagation();
+        console.log("!");
+        modal.style.display = "none";
+      };
+    };
   </script>
 </head>
 <body></body>

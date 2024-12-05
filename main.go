@@ -32,6 +32,26 @@ const (
 	`
 	camera = `
 	<button id="activate"><h1>Camera ON</h1></button>
+	<div id="myModal" class="modal">
+    <!-- Modal content -->
+    <div class="modal-content">
+      <span class="close">×</span>
+			<section style="display: grid">
+				<label for="zoom" style="display: grid">
+					<span>zoom:</span>
+					<input type="range" id="zoom" />
+				</label>
+				<label for="focus" style="display: grid">
+					<span>focus:</span>
+					<input type="range" id="focus" />
+				</label>
+				<label for="expose" style="display: grid">
+					<span>expose:</span>
+					<input type="range" id="expose" />
+				</label>
+			</section>
+    </div>
+  </div>
 	`
 	failed = `
 	<button id="restart"><h1>Restart</h1></button>
@@ -207,7 +227,7 @@ func show(view string) {
 			go func() {
 				stream, err := await(mediaDevices.Call("getUserMedia", M{
 					"audio": false,
-					"video": M{"facingMode": "environment"},
+					"video": M{"facingMode": "environment", "zoom": true},
 				}))
 				if err != nil {
 					console.Call("log", "getUserMedia failed:", err)
@@ -219,7 +239,16 @@ func show(view string) {
 				video.Set("srcObject", stream)
 				video.Set("autoplay", true)
 				video.Set("muted", true)
-				video.Set("controls", true)
+				//video.Set("controls", true)
+				video.Call("addEventListener", "click", js.FuncOf(func(this js.Value, args []js.Value) interface{} {
+					modal := document.Call("getElementById", "myModal")
+					if modal.Get("style").Get("display").String() == "none" {
+						modal.Get("style").Set("display", "block")
+					} else {
+						modal.Get("style").Set("display", "none")
+					}
+					return nil
+				}))
 				document.Get("body").Call("appendChild", video)
 			}()
 			return nil
