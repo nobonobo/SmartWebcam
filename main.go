@@ -101,7 +101,7 @@ var (
 		track.Call("applyConstraints", M{
 			"advanced": S{
 				M{
-					"zoom": args[0].Get("target").Get("value").Float(),
+					"zoom": args[0].Get("target").Get("value"),
 				},
 			},
 		})
@@ -112,7 +112,7 @@ var (
 			"advanced": S{
 				M{
 					"focusMode":     "manual",
-					"focusDistance": args[0].Get("target").Get("value").Float(),
+					"focusDistance": args[0].Get("target").Get("value"),
 				},
 			},
 		})
@@ -123,7 +123,7 @@ var (
 			"advanced": S{
 				M{
 					"exposureMode": "manual",
-					"exposureTime": args[0].Get("target").Get("value").Float(),
+					"exposureTime": args[0].Get("target").Get("value"),
 				},
 			},
 		})
@@ -276,18 +276,18 @@ func show(view string) {
 				zoom := document.Call("getElementById", "zoom")
 				focus := document.Call("getElementById", "focus")
 				expose := document.Call("getElementById", "expose")
-				zoom.Set("min", capabilities.Get("zoom").Get("min").Float())
-				zoom.Set("max", capabilities.Get("zoom").Get("max").Float())
-				zoom.Set("step", capabilities.Get("zoom").Get("step").Int())
-				zoom.Set("value", settings.Get("zoom").Float())
-				focus.Set("min", capabilities.Get("focusDistance").Get("min").Float())
-				focus.Set("max", capabilities.Get("focusDistance").Get("max").Float())
-				focus.Set("step", capabilities.Get("focusDistance").Get("step").Int())
-				focus.Set("value", settings.Get("focusDistance").Float())
-				expose.Set("min", capabilities.Get("exposureTime").Get("min").Float())
-				expose.Set("max", capabilities.Get("exposureTime").Get("max").Float())
-				expose.Set("step", capabilities.Get("exposureTime").Get("step").Int())
-				expose.Set("value", settings.Get("exposureTime").Float())
+				zoom.Set("min", capabilities.Get("zoom").Get("min"))
+				zoom.Set("max", capabilities.Get("zoom").Get("max"))
+				zoom.Set("step", capabilities.Get("zoom").Get("step"))
+				zoom.Set("value", settings.Get("zoom"))
+				focus.Set("min", capabilities.Get("focusDistance").Get("min"))
+				focus.Set("max", capabilities.Get("focusDistance").Get("max"))
+				focus.Set("step", capabilities.Get("focusDistance").Get("step"))
+				focus.Set("value", settings.Get("focusDistance"))
+				expose.Set("min", capabilities.Get("exposureTime").Get("min"))
+				expose.Set("max", capabilities.Get("exposureTime").Get("max"))
+				expose.Set("step", capabilities.Get("exposureTime").Get("step"))
+				expose.Set("value", settings.Get("exposureTime"))
 				zoom.Set("oninput", zoomInput)
 				focus.Set("oninput", focusInput)
 				expose.Set("oninput", exposeInput)
