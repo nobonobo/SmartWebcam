@@ -32,25 +32,20 @@ const (
 	`
 	camera = `
 	<button id="activate"><h1>Camera ON</h1></button>
-	<div class="modal">
-		<div class="modal-content">
-			<span class="close">×</span>
-			<section style="display: grid">
-				<label for="zoom" style="display: grid">
-					<span>zoom:</span>
-					<input type="range" id="zoom" />
-				</label>
-				<label for="focus" style="display: grid">
-					<span>focus:</span>
-					<input type="range" id="focus" />
-				</label>
-				<label for="expose" style="display: grid">
-					<span>expose:</span>
-					<input type="range" id="expose" />
-				</label>
-			</section>
-	  </div>
-  </div>
+	<section style="display: grid">
+		<label for="zoom" style="display: grid">
+			<span>zoom:</span>
+			<input type="range" id="zoom" />
+		</label>
+		<label for="focus" style="display: grid">
+			<span>focus:</span>
+			<input type="range" id="focus" />
+		</label>
+		<label for="expose" style="display: grid">
+			<span>expose:</span>
+			<input type="range" id="expose" />
+		</label>
+	</section>
 	`
 	failed = `
 	<button id="restart"><h1>Restart</h1></button>
