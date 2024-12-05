@@ -258,8 +258,8 @@ func show(view string) {
 				stream, err := await(mediaDevices.Call("getUserMedia", M{
 					"audio": false,
 					"video": M{
-						"width":      1280,
-						"height":     720,
+						"width":      1920,
+						"height":     1080,
 						"facingMode": "environment",
 						"zoom":       true,
 					},
