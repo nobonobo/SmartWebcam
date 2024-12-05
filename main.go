@@ -101,6 +101,51 @@ func connect(stream js.Value, self, peer string) error {
 	return nil
 }
 
+var (
+	click = js.FuncOf(func(this js.Value, args []js.Value) interface{} {
+		modal := document.Call("getElementById", "myModal")
+		if modal.Get("style").Get("display").String() == "none" {
+			modal.Get("style").Set("display", "block")
+		} else {
+			modal.Get("style").Set("display", "none")
+		}
+		return nil
+	})
+	track     js.Value
+	zoomInput = js.FuncOf(func(this js.Value, args []js.Value) interface{} {
+		track.Call("applyConstraints", M{
+			"advanced": S{
+				M{
+					"zoom": args[0].Get("target").Get("value").Float(),
+				},
+			},
+		})
+		return nil
+	})
+	focusInput = js.FuncOf(func(this js.Value, args []js.Value) interface{} {
+		track.Call("applyConstraints", M{
+			"advanced": S{
+				M{
+					"focusMode":     "manual",
+					"focusDistance": args[0].Get("target").Get("value").Float(),
+				},
+			},
+		})
+		return nil
+	})
+	exposeInput = js.FuncOf(func(this js.Value, args []js.Value) interface{} {
+		track.Call("applyConstraints", M{
+			"advanced": S{
+				M{
+					"exposureMode": "manual",
+					"exposureTime": args[0].Get("target").Get("value").Float(),
+				},
+			},
+		})
+		return nil
+	})
+)
+
 func show(view string) {
 	view = strings.TrimLeft(view, "#/")
 	switch view {
@@ -240,15 +285,28 @@ func show(view string) {
 				video.Set("autoplay", true)
 				video.Set("muted", true)
 				//video.Set("controls", true)
-				video.Call("addEventListener", "click", js.FuncOf(func(this js.Value, args []js.Value) interface{} {
-					modal := document.Call("getElementById", "myModal")
-					if modal.Get("style").Get("display").String() == "none" {
-						modal.Get("style").Set("display", "block")
-					} else {
-						modal.Get("style").Set("display", "none")
-					}
-					return nil
-				}))
+				track = stream.Call("getVideoTracks").Index(0)
+				capabilities := track.Call("getCapabilities")
+				settings := track.Call("getSettings")
+				zoom := document.Call("getElementById", "zoom")
+				focus := document.Call("getElementById", "focus")
+				expose := document.Call("getElementById", "expose")
+				zoom.Set("min", capabilities.Get("zoom").Get("min").Float())
+				zoom.Set("max", capabilities.Get("zoom").Get("max").Float())
+				zoom.Set("step", capabilities.Get("zoom").Get("step").Int())
+				zoom.Set("value", settings.Get("zoom").Float())
+				focus.Set("min", capabilities.Get("focusDistance").Get("min").Float())
+				focus.Set("max", capabilities.Get("focusDistance").Get("max").Float())
+				focus.Set("step", capabilities.Get("focusDistance").Get("step").Int())
+				focus.Set("value", settings.Get("focusDistance").Float())
+				expose.Set("min", capabilities.Get("exposureTime").Get("min").Float())
+				expose.Set("max", capabilities.Get("exposureTime").Get("max").Float())
+				expose.Set("step", capabilities.Get("exposureTime").Get("step").Int())
+				expose.Set("value", settings.Get("exposureTime").Float())
+				js.Global().Get("window").Set("onclick", click)
+				zoom.Set("oninput", zoomInput)
+				focus.Set("oninput", focusInput)
+				expose.Set("oninput", exposeInput)
 				document.Get("body").Call("appendChild", video)
 			}()
 			return nil
