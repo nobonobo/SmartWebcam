@@ -32,10 +32,9 @@ const (
 	`
 	camera = `
 	<button id="activate"><h1>Camera ON</h1></button>
-	<div id="myModal" class="modal">
-    <!-- Modal content -->
-    <div class="modal-content">
-      <span class="close">×</span>
+	<div class="modal">
+		<div class="modal-content">
+			<span class="close">×</span>
 			<section style="display: grid">
 				<label for="zoom" style="display: grid">
 					<span>zoom:</span>
@@ -50,7 +49,7 @@ const (
 					<input type="range" id="expose" />
 				</label>
 			</section>
-    </div>
+	  </div>
   </div>
 	`
 	failed = `
@@ -102,15 +101,6 @@ func connect(stream js.Value, self, peer string) error {
 }
 
 var (
-	click = js.FuncOf(func(this js.Value, args []js.Value) interface{} {
-		modal := document.Call("getElementById", "myModal")
-		if modal.Get("style").Get("display").String() == "none" {
-			modal.Get("style").Set("display", "block")
-		} else {
-			modal.Get("style").Set("display", "none")
-		}
-		return nil
-	})
 	track     js.Value
 	zoomInput = js.FuncOf(func(this js.Value, args []js.Value) interface{} {
 		track.Call("applyConstraints", M{
@@ -303,7 +293,6 @@ func show(view string) {
 				expose.Set("max", capabilities.Get("exposureTime").Get("max").Float())
 				expose.Set("step", capabilities.Get("exposureTime").Get("step").Int())
 				expose.Set("value", settings.Get("exposureTime").Float())
-				js.Global().Get("window").Set("onclick", click)
 				zoom.Set("oninput", zoomInput)
 				focus.Set("oninput", focusInput)
 				expose.Set("oninput", exposeInput)
